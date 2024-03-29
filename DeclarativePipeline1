@@ -7,41 +7,40 @@ pipeline
         {
             steps
             {
-                git 'https://github.com/intelliqittrainings/maven.git'
-            }
+                git 'https://github.com/kanamandarajesh/maven.git'
+            }    
+            
         }
         stage('ContinuousBuild')
         {
             steps
             {
-              sh label: '', script: 'mvn package'
+                sh 'mvn package'
             }
-                
-        }
+        }   
         stage('ContinuousDeployment')
         {
             steps
             {
-                sh label: '', script: 'scp /home/ubuntu/.jenkins/workspace/DeclarativePipeline/webapp/target/webapp.war ubuntu@172.31.31.15:/var/lib/tomcat8/webapps/testwebapp.war'
-            }
-            
-        }
+                deploy adapters: [tomcat7(credentialsId: '13654fd2-69a1-41a9-84ab-8de4a4781ab7', path: '', url: 'http://192.168.199.131:8080')], contextPath: 'test0007', war: '**/*.war'
+        
+            }    
+        } 
         stage('ContinuousTesting')
         {
             steps
             {
-                git 'https://github.com/intelliqittrainings/FunctionalTesting.git'
-                sh label: '', script: 'java -jar /home/ubuntu/.jenkins/workspace/DeclarativePipeline/testing.jar'
+                git 'https://github.com/kanamandarajesh/Functional-testing.git'
+                sh 'java -jar /var/lib/jenkins/workspace/DeclarativePipeline1/testing.jar'
             }
         }
         stage('ContinuousDelivery')
         {
-           steps
-           {
-               input message: 'Waiting for Approval from the DM!', submitter: 'naresh'
-               sh label: '', script: 'scp /home/ubuntu/.jenkins/workspace/DeclarativePipeline/webapp/target/webapp.war ubuntu@172.31.26.41:/var/lib/tomcat8/webapps/prodwebapp.war'
-           }
-        }
+            steps
+            {
+                deploy adapters: [tomcat7(credentialsId: '13654fd2-69a1-41a9-84ab-8de4a4781ab7', path: '', url: 'http://192.168.199.132:8080')], contextPath: 'production', war: '**/*.war'
+            }
+        }   
+        
     }
-    
 }
